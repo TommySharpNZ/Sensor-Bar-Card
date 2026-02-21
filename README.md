@@ -21,10 +21,12 @@ Clicking any bar opens the native Home Assistant entity dialog with full history
 - 🎨 **Three colour modes** — smooth gradient, severity bands, or a single fixed colour
 - 📍 **Four label positions** — left, above, inside the bar, or off
 - 📈 **Optional peak marker** — a subtle chevron and line marking the highest value seen this session
+- 🎯 **Optional target marker** — a fixed chevron and line marking a configurable goal or threshold
 - ✨ **Animated fill** — smooth bar width and colour transitions on value change
 - 🖱️ **Native HA entity dialog** — click any bar to open the Home Assistant more-info popup with history
 - 🔧 **Per-entity overrides** — every option can be set as a global default and overridden per entity
 - 📐 **Configurable bar height** — set different heights per entity or globally
+- 🔢 **Decimal places** — control how many decimal places are shown in the value
 - 🌡️ **Works with any sensor** — power, temperature, humidity, battery, CO₂, water flow, and more
 
 ---
@@ -81,6 +83,10 @@ All options can be set at the **card level as global defaults** and overridden i
 | `severity` | list | green/orange/red | Colour bands — see [Severity](#severity-options) |
 | `animated` | boolean | `true` | Smooth bar width and colour transitions |
 | `show_peak` | boolean | `false` | Show peak marker for the highest value seen this session |
+| `peak_color` | string | `#888` | Colour of the peak marker |
+| `target` | number | — | Fixed target marker value (same scale as `min`/`max`) |
+| `target_color` | string | `#888` | Colour of the target marker |
+| `decimal` | number | — | Decimal places to show in the value (e.g. `0`, `1`, `2`) |
 | `min` | number | `0` | Minimum value (shown as 0% bar width) |
 | `max` | number | `100` | Maximum value (shown as 100% bar width) |
 | `height` | number | `38` | Bar height in pixels |
@@ -147,11 +153,21 @@ color: '#4a9eff'
 
 ## Peak Marker
 
-When `show_peak: true` is set, the card tracks the highest value seen since the page was loaded and displays it as a subtle marker directly on the bar — a small downward chevron (▼) at the top with a vertical line dropping through the bar.
+When `show_peak: true` is set, the card tracks the highest value seen since the page was loaded and displays it as a subtle marker on the bar — a small downward chevron (▼) at the top with a vertical line through the bar. Use `peak_color` to change the marker colour.
 
 This is useful for catching brief spikes you might otherwise miss, for example a kettle or appliance switching on momentarily.
 
 > **Note:** The peak value resets when the page is reloaded as it is stored in memory only.
+
+---
+
+## Target Marker
+
+When `target` is set to a value, a fixed marker is drawn on the bar at that position — a small upward chevron (▲) at the bottom with a vertical line through the bar. Use `target_color` to change the marker colour.
+
+The target chevron points **up** from the bottom of the bar while the peak chevron points **down** from the top, so the two markers are always easy to tell apart at a glance.
+
+The target value uses the same scale as `min` and `max` — so if `max: 3000` and you want a target at 2000W, set `target: 2000`.
 
 ---
 
@@ -169,7 +185,7 @@ The simplest possible config. One entity, default severity colour mode, label on
 type: custom:sensor-bar-card
 title: Caravan Power
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Caravan
     icon: mdi:caravan
     max: 3000
@@ -189,15 +205,15 @@ title: Gradient Colour Mode
 color_mode: gradient
 label_position: left
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Low Usage
     icon: mdi:sine-wave
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Medium Usage
     icon: mdi:sine-wave
     max: 500
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: High Usage
     icon: mdi:sine-wave
     max: 150
@@ -227,15 +243,15 @@ severity:
     to: 100
     color: '#F44336'
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Low Usage
     icon: mdi:sine-wave
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Medium Usage
     icon: mdi:sine-wave
     max: 500
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: High Usage
     icon: mdi:sine-wave
     max: 150
@@ -254,19 +270,19 @@ type: custom:sensor-bar-card
 title: Single Colour Mode
 label_position: left
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Blue
     icon: mdi:sine-wave
     max: 3000
     color_mode: single
     color: '#4a9eff'
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Green
     icon: mdi:sine-wave
     max: 3000
     color_mode: single
     color: '#4CAF50'
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Purple
     icon: mdi:sine-wave
     max: 3000
@@ -288,15 +304,15 @@ title: Label Position — Left
 color_mode: gradient
 label_position: left
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Caravan
     icon: mdi:caravan
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Fridge
     icon: mdi:fridge
     max: 200
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Lighting
     icon: mdi:lightbulb
     max: 100
@@ -316,11 +332,11 @@ title: Label Position — Above
 color_mode: gradient
 label_position: above
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Caravan
     icon: mdi:caravan
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Fridge
     icon: mdi:fridge
     max: 200
@@ -341,11 +357,11 @@ color_mode: gradient
 label_position: inside
 height: 48
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Caravan
     icon: mdi:caravan
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Fridge
     icon: mdi:fridge
     max: 200
@@ -365,13 +381,13 @@ title: Label Position — Off
 color_mode: gradient
 label_position: off
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     icon: mdi:caravan
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     icon: mdi:fridge
     max: 200
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     icon: mdi:lightbulb
     max: 100
 ```
@@ -380,7 +396,7 @@ entities:
 
 ### Peak Marker
 
-When `show_peak: true`, a subtle chevron and vertical line marks the highest value seen since the page loaded. Useful for spotting brief spikes you might otherwise miss.
+When `show_peak: true`, a subtle chevron (▼) and vertical line marks the highest value seen since the page loaded. Use `peak_color` to choose a colour — defaults to grey.
 
 ![Peak marker](images/example-peak.png)
 
@@ -391,15 +407,117 @@ color_mode: gradient
 label_position: left
 show_peak: true
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: With Peak
     icon: mdi:caravan
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Without Peak
     icon: mdi:caravan
     max: 3000
     show_peak: false
+```
+
+---
+
+### Target Marker
+
+A fixed marker (▲) showing a goal or threshold. The target chevron points **up** from the bottom of the bar — the opposite of the peak marker — making the two easy to distinguish. Use `target_color` to choose a colour — defaults to grey.
+
+![Target marker](images/example-target.png)
+
+```yaml
+type: custom:sensor-bar-card
+title: Target Marker
+color_mode: gradient
+label_position: left
+entities:
+  - entity: input_number.bar_card_test_power
+    name: Under Target
+    icon: mdi:target
+    min: 0
+    max: 3000
+    target: 2000
+    target_color: '#4CAF50'
+  - entity: input_number.bar_card_test_power
+    name: Over Target
+    icon: mdi:target
+    min: 0
+    max: 1000
+    target: 500
+    target_color: '#F44336'
+  - entity: input_number.bar_card_test_power
+    name: Default Color
+    icon: mdi:target
+    min: 0
+    max: 3000
+    target: 1500
+```
+
+---
+
+### Peak & Target Together
+
+Peak (▼ top) and target (▲ bottom) on the same bar. Peak tracks the session high while target marks your goal — both independently coloured so they're always easy to tell apart.
+
+![Peak and target together](images/example-peak-target.png)
+
+```yaml
+type: custom:sensor-bar-card
+title: Peak & Target
+color_mode: gradient
+label_position: left
+show_peak: true
+peak_color: '#F44336'
+entities:
+  - entity: input_number.bar_card_test_power
+    name: Caravan
+    icon: mdi:caravan
+    min: 0
+    max: 3000
+    target: 2000
+    target_color: '#4a9eff'
+  - entity: input_number.bar_card_test_power
+    name: Fridge
+    icon: mdi:fridge
+    min: 0
+    max: 500
+    target: 150
+    target_color: '#4CAF50'
+    peak_color: '#FF9800'
+```
+
+---
+
+### Decimal Places
+
+Control how many decimal places are shown in the value. Useful for tidying up temperature, humidity, or any sensor that reports many decimal places by default.
+
+![Decimal places](images/example-decimal.png)
+
+```yaml
+type: custom:sensor-bar-card
+title: Decimal Places
+color_mode: gradient
+label_position: left
+min: 0
+max: 40
+entities:
+  - entity: input_number.bar_card_test_temperature
+    name: No decimal (0)
+    icon: mdi:thermometer
+    decimal: 0
+  - entity: input_number.bar_card_test_temperature
+    name: One decimal (1)
+    icon: mdi:thermometer
+    decimal: 1
+  - entity: input_number.bar_card_test_temperature
+    name: Two decimals (2)
+    icon: mdi:thermometer
+    decimal: 2
+  - entity: input_number.bar_card_test_temperature
+    name: Raw (no decimal set)
+    icon: mdi:thermometer
 ```
 
 ---
@@ -416,22 +534,22 @@ title: Bar Heights
 color_mode: gradient
 label_position: left
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: 24px — Compact
     icon: mdi:minus
     max: 3000
     height: 24
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: 38px — Default
     icon: mdi:minus
     max: 3000
     height: 38
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: 52px — Tall
     icon: mdi:minus
     max: 3000
     height: 52
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: 70px — Chunky
     icon: mdi:minus
     max: 3000
@@ -454,18 +572,18 @@ label_position: left
 animated: true
 show_peak: false
 entities:
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Default (inherits all globals)
     icon: mdi:caravan
     max: 3000
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Single blue + peak on
     icon: mdi:fridge
     max: 3000
     color_mode: single
     color: '#4a9eff'
     show_peak: true
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Severity + label above
     icon: mdi:lightbulb
     max: 3000
@@ -481,7 +599,7 @@ entities:
       - from: 75
         to: 100
         color: '#F44336'
-  - entity: input_number.bar_card_test
+  - entity: input_number.bar_card_test_power
     name: Tall + inside label
     icon: mdi:television
     max: 3000
@@ -515,13 +633,13 @@ severity:
     to: 100
     color: '#F44336'
 entities:
-  - entity: sensor.living_room_temperature
+  - entity: input_number.bar_card_test_temperature
     name: Living Room
     icon: mdi:sofa
-  - entity: sensor.bedroom_temperature
+  - entity: input_number.bar_card_test_temperature
     name: Bedroom
     icon: mdi:bed
-  - entity: sensor.outside_temperature
+  - entity: input_number.bar_card_test_temperature
     name: Outside
     icon: mdi:weather-sunny
 ```
@@ -552,13 +670,13 @@ severity:
     to: 100
     color: '#4a9eff'
 entities:
-  - entity: sensor.living_room_humidity
+  - entity: input_number.bar_card_test_humidity
     name: Living Room
     icon: mdi:sofa
-  - entity: sensor.bedroom_humidity
+  - entity: input_number.bar_card_test_humidity
     name: Bedroom
     icon: mdi:bed
-  - entity: sensor.bathroom_humidity
+  - entity: input_number.bar_card_test_humidity
     name: Bathroom
     icon: mdi:shower
 ```
@@ -589,13 +707,13 @@ severity:
     to: 100
     color: '#4CAF50'
 entities:
-  - entity: sensor.phone_battery
+  - entity: input_number.bar_card_test_battery
     name: Phone
     icon: mdi:cellphone
-  - entity: sensor.tablet_battery
+  - entity: input_number.bar_card_test_battery
     name: Tablet
     icon: mdi:tablet
-  - entity: sensor.remote_battery
+  - entity: input_number.bar_card_test_battery
     name: Remote
     icon: mdi:remote
 ```
