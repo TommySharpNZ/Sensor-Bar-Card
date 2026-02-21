@@ -796,6 +796,14 @@ Pull requests and issues are welcome! Please open an issue before submitting maj
 
 ---
 
+## Support
+
+If this card saves you some time and you'd like to say thanks, a coffee is always appreciated!
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-%23FFDD00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tommysharpnz)
+
+---
+
 ## License
 
 [MIT](LICENSE)
