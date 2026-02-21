@@ -1,12 +1,14 @@
 # Sensor Bar Card
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![GitHub release](https://img.shields.io/github/release/YOUR_GITHUB_USERNAME/sensor-bar-card.svg)](https://github.com/YOUR_GITHUB_USERNAME/sensor-bar-card/releases)
+[![GitHub release](https://img.shields.io/github/release/tommysharpnz/sensor-bar-card.svg)](https://github.com/tommysharpnz/sensor-bar-card/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A polished, highly configurable bar card for [Home Assistant](https://www.home-assistant.io/) Lovelace dashboards. Display any sensor as an animated, colour-coded horizontal bar — power usage, temperature, humidity, water flow, battery level, CO₂, and more.
 
 Clicking any bar opens the native Home Assistant entity dialog with full history, attributes, and charts.
+
+My first ever Home Assistant card so please let me know what features it's missing or if any bugs!
 
 ![Sensor Bar Card preview](images/preview.png)
 
@@ -30,14 +32,14 @@ Clicking any bar opens the native Home Assistant entity dialog with full history
 
 1. Open **HACS** in Home Assistant
 2. Click the three dots (⋮) in the top right → **Custom repositories**
-3. Add `https://github.com/YOUR_GITHUB_USERNAME/sensor-bar-card` and select **Dashboard** as the category
+3. Add `https://github.com/tommysharpnz/sensor-bar-card` and select **Dashboard** as the category
 4. Click **Add**
 5. Search for **Sensor Bar Card** and click **Download**
 6. Restart Home Assistant or hard refresh your browser
 
 ### Manual
 
-1. Download `sensor-bar-card.js` from the [latest release](https://github.com/YOUR_GITHUB_USERNAME/sensor-bar-card/releases/latest)
+1. Download `sensor-bar-card.js` from the [latest release](https://github.com/tommysharpnz/sensor-bar-card/releases/latest)
 2. Copy it to your Home Assistant `/config/www/` folder
 3. Go to **Settings → Dashboards → Resources** and add:
    - URL: `/local/sensor-bar-card.js`
