@@ -93,6 +93,7 @@ All options can be set at the **card level as global defaults** and overridden i
 | `min` | number | `0` | Minimum value (shown as 0% bar width) |
 | `max` | number | `100` | Maximum value (shown as 100% bar width) |
 | `height` | number | `38` | Bar height in pixels |
+| `label_width` | number | `100` | Width of the name label column in pixels — only applies when `label_position: left` |
 | `unit` | string | — | Override the unit of measurement displayed next to the value |
 
 ### Entity Options
@@ -164,6 +165,21 @@ color: '#4a9eff'
 | `off` | No name label — value still shown on the right |
 
 ---
+
+## Label Width
+
+When using `label_position: left`, all name labels share a fixed-width column so the bars all start at the same horizontal position. The default width is `100px` — use `label_width` to widen it if your entity names are long, or narrow it for more compact cards. It can be set globally or overridden per entity.
+
+```yaml
+type: custom:sensor-bar-card
+label_position: left
+label_width: 140   # wider column for longer names
+entities:
+  - entity: sensor.living_room_temperature
+    name: Living Room Temp
+  - entity: sensor.bedroom_temperature
+    name: Bedroom Temp
+```
 
 ## Icons
 
@@ -264,6 +280,8 @@ entities:
 
 Smooth colour transition as the value rises from `min` to `max`. By default the gradient runs green → orange → red, but you can define your own colours and stop positions using `gradient_stops`. Each stop takes a `color` (any hex colour) and a `pos` (0–100, the percentage point where that colour is anchored).
 
+This example uses a different custom gradient for each sensor type — cool blue for power, warm amber for temperature, ocean tones for humidity, and a traffic-light palette for battery.
+
 ![Gradient colour mode](images/example-gradient.png)
 
 ```yaml
@@ -273,24 +291,55 @@ color_mode: gradient
 label_position: left
 entities:
   - entity: input_number.bar_card_test_power
-    name: Default gradient
-    icon: mdi:sine-wave
+    name: Power
+    icon: mdi:lightning-bolt
+    min: 0
     max: 3000
-  - entity: input_number.bar_card_test_power
-    name: Default gradient
-    icon: mdi:sine-wave
-    max: 500
-  - entity: input_number.bar_card_test_power
-    name: Custom — blue to purple
-    icon: mdi:sine-wave
-    max: 150
     gradient_stops:
       - pos: 0
-        color: '#4a9eff'
+        color: '#e3f2fd'
       - pos: 50
-        color: '#9c27b0'
+        color: '#4a9eff'
       - pos: 100
-        color: '#e91e63'
+        color: '#1565c0'
+  - entity: input_number.bar_card_test_temperature
+    name: Temperature
+    icon: mdi:thermometer
+    min: 0
+    max: 40
+    gradient_stops:
+      - pos: 0
+        color: '#fff9c4'
+      - pos: 50
+        color: '#ff9800'
+      - pos: 100
+        color: '#b71c1c'
+  - entity: input_number.bar_card_test_humidity
+    name: Humidity
+    icon: mdi:water-percent
+    min: 0
+    max: 100
+    gradient_stops:
+      - pos: 0
+        color: '#e0f7fa'
+      - pos: 50
+        color: '#26c6da'
+      - pos: 100
+        color: '#006064'
+  - entity: input_number.bar_card_test_battery
+    name: Battery
+    icon: mdi:battery
+    min: 0
+    max: 100
+    gradient_stops:
+      - pos: 0
+        color: '#F44336'
+      - pos: 30
+        color: '#FF9800'
+      - pos: 60
+        color: '#4CAF50'
+      - pos: 100
+        color: '#4CAF50'
 ```
 
 ---

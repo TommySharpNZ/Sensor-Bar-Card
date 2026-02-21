@@ -131,6 +131,7 @@ class SensorBarCard extends HTMLElement {
       min: 0,
       max: 100,
       height: 38,
+      label_width: 100,
       severity: [
         { from: 0,  to: 33,  color: '#4CAF50' },
         { from: 33, to: 75,  color: '#FF9800' },
@@ -172,6 +173,7 @@ class SensorBarCard extends HTMLElement {
       target:         entityCfg.target         ?? g.target,
       target_color:   entityCfg.target_color   ?? g.target_color,
       decimal:        entityCfg.decimal        ?? g.decimal,
+      label_width:    entityCfg.label_width    ?? g.label_width,
       gradient_stops: entityCfg.gradient_stops ?? g.gradient_stops,
       unit:           entityCfg.unit           ?? g.unit ?? null,
       icon:           entityCfg.icon === false ? false : (entityCfg.icon ?? this._hass?.states[entityCfg.entity]?.attributes?.icon ?? null),
@@ -262,7 +264,6 @@ class SensorBarCard extends HTMLElement {
 
         .label-left {
           flex-shrink: 0;
-          width: 100px;
           font-size: 13px;
           font-weight: 500;
           color: var(--primary-text-color, #333);
@@ -434,7 +435,7 @@ class SensorBarCard extends HTMLElement {
         <span>${stateDisplay}${unit ? ' ' + unit : ''}</span>
       </div>` : '';
 
-    const leftLabel  = lp === 'left' ? `<div class="label-left">${name}</div>` : '';
+    const leftLabel  = lp === 'left' ? `<div class="label-left" style="width:${ecfg.label_width}px;">${name}</div>` : '';
 
     const rightValue = lp !== 'inside' && lp !== 'above'
       ? `<div class="value-right">${stateDisplay}${unit ? `<span class="unit"> ${unit}</span>` : ''}</div>`
