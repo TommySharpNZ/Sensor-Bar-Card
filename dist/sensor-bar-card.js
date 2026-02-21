@@ -127,6 +127,7 @@ class SensorBarCard extends HTMLElement {
       target: null,
       target_color: '#888',
       decimal: null,
+      gradient_stops: null,
       min: 0,
       max: 100,
       height: 38,
@@ -171,6 +172,7 @@ class SensorBarCard extends HTMLElement {
       target:         entityCfg.target         ?? g.target,
       target_color:   entityCfg.target_color   ?? g.target_color,
       decimal:        entityCfg.decimal        ?? g.decimal,
+      gradient_stops: entityCfg.gradient_stops ?? g.gradient_stops,
       unit:           entityCfg.unit           ?? g.unit ?? null,
       icon:           entityCfg.icon === false ? false : (entityCfg.icon ?? this._hass?.states[entityCfg.entity]?.attributes?.icon ?? null),
       name:           entityCfg.name           ?? null,
@@ -181,11 +183,23 @@ class SensorBarCard extends HTMLElement {
     if (ecfg.color_mode === 'single') return ecfg.color;
 
     if (ecfg.color_mode === 'gradient') {
-      const stops = [
-        { p: 0,   r: 76,  g: 175, b: 80  },
-        { p: 50,  r: 255, g: 152, b: 0   },
-        { p: 100, r: 244, g: 67,  b: 54  },
-      ];
+      let stops;
+      if (ecfg.gradient_stops && ecfg.gradient_stops.length >= 2) {
+        stops = ecfg.gradient_stops.map(s => {
+          const hex = s.color.replace('#','');
+          const full = hex.length === 3
+            ? hex.split('').map(c => c+c).join('')
+            : hex;
+          return { p: s.pos, r: parseInt(full.slice(0,2),16), g: parseInt(full.slice(2,4),16), b: parseInt(full.slice(4,6),16) };
+        });
+        stops.sort((a,b) => a.p - b.p);
+      } else {
+        stops = [
+          { p: 0,   r: 76,  g: 175, b: 80  },
+          { p: 50,  r: 255, g: 152, b: 0   },
+          { p: 100, r: 244, g: 67,  b: 54  },
+        ];
+      }
       let lo = stops[0], hi = stops[stops.length - 1];
       for (let i = 0; i < stops.length - 1; i++) {
         if (pct >= stops[i].p && pct <= stops[i + 1].p) {
@@ -437,7 +451,12 @@ class SensorBarCard extends HTMLElement {
               <div class="bar-fill${ecfg.animated ? '' : ' no-anim'}"
                 style="width:${pct}%;height:${h}px;${pct >= 97 ? 'border-radius:6px;' : ''}${
                   ecfg.color_mode === 'gradient'
-                    ? 'background:linear-gradient(to right,#4CAF50 0%,#FF9800 50%,#F44336 100%);background-size:' + ((100/pct)*100).toFixed(1) + '% 100%;background-repeat:no-repeat;'
+                    ? (() => {
+                      const gs = ecfg.gradient_stops && ecfg.gradient_stops.length >= 2
+                        ? [...ecfg.gradient_stops].sort((a,b)=>a.pos-b.pos).map(s=>`${s.color} ${s.pos}%`).join(',')
+                        : '#4CAF50 0%,#FF9800 50%,#F44336 100%';
+                      return 'background:linear-gradient(to right,' + gs + ');background-size:' + ((100/pct)*100).toFixed(1) + '% 100%;background-repeat:no-repeat;';
+                    })()
                     : 'background:' + color + ';'
                 }"></div>
               ${innerLabel}

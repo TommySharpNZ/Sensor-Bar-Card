@@ -18,7 +18,7 @@ Clicking any bar opens the native Home Assistant entity dialog with full history
 
 ## Features
 
-- 🎨 **Three colour modes** — smooth gradient, severity bands, or a single fixed colour
+- 🎨 **Three colour modes** — smooth gradient (with custom stop colours), severity bands, or a single fixed colour
 - 📍 **Four label positions** — left, above, inside the bar, or off
 - 📈 **Optional peak marker** — a subtle chevron and line marking the highest value seen this session
 - 🎯 **Optional target marker** — a fixed chevron and line marking a configurable goal or threshold
@@ -82,6 +82,7 @@ All options can be set at the **card level as global defaults** and overridden i
 | `label_position` | string | `left` | Label position — `left` \| `above` \| `inside` \| `off` |
 | `color_mode` | string | `severity` | Bar colour mode — `gradient` \| `severity` \| `single` |
 | `color` | string | `#4a9eff` | Bar colour when `color_mode: single` |
+| `gradient_stops` | list | green/orange/red | Custom gradient stop colours and positions — see [Gradient](#gradient) |
 | `severity` | list | green/orange/red | Colour bands — see [Severity](#severity-options) |
 | `animated` | boolean | `true` | Smooth bar width and colour transitions |
 | `show_peak` | boolean | `false` | Show peak marker for the highest value seen this session |
@@ -109,10 +110,21 @@ Each item in `entities` accepts all card-level options above as overrides, plus:
 ## Colour Modes
 
 ### `gradient`
-Smoothly blends the bar colour from green → orange → red as the value rises from `min` to `max`. No extra configuration needed.
+Smoothly blends the bar colour from green → orange → red as the value rises from `min` to `max`. No extra configuration needed — or supply your own `gradient_stops` to use any colours you like.
+
+Each stop takes a `color` (hex) and a `pos` (0–100). Stops are sorted by position automatically, and at least two are required.
 
 ```yaml
 color_mode: gradient
+
+# Optional — override the default green/orange/red
+gradient_stops:
+  - pos: 0
+    color: '#4a9eff'
+  - pos: 50
+    color: '#9c27b0'
+  - pos: 100
+    color: '#e91e63'
 ```
 
 ### `severity`
@@ -250,7 +262,7 @@ entities:
 
 ### Colour Mode: Gradient
 
-Smooth colour transition from green through orange to red as value rises. No severity bands needed.
+Smooth colour transition as the value rises from `min` to `max`. By default the gradient runs green → orange → red, but you can define your own colours and stop positions using `gradient_stops`. Each stop takes a `color` (any hex colour) and a `pos` (0–100, the percentage point where that colour is anchored).
 
 ![Gradient colour mode](images/example-gradient.png)
 
@@ -261,17 +273,24 @@ color_mode: gradient
 label_position: left
 entities:
   - entity: input_number.bar_card_test_power
-    name: Low Usage
+    name: Default gradient
     icon: mdi:sine-wave
     max: 3000
   - entity: input_number.bar_card_test_power
-    name: Medium Usage
+    name: Default gradient
     icon: mdi:sine-wave
     max: 500
   - entity: input_number.bar_card_test_power
-    name: High Usage
+    name: Custom — blue to purple
     icon: mdi:sine-wave
     max: 150
+    gradient_stops:
+      - pos: 0
+        color: '#4a9eff'
+      - pos: 50
+        color: '#9c27b0'
+      - pos: 100
+        color: '#e91e63'
 ```
 
 ---
