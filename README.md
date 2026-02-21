@@ -294,14 +294,7 @@ entities:
     name: Power
     icon: mdi:lightning-bolt
     min: 0
-    max: 3000
-    gradient_stops:
-      - pos: 0
-        color: '#e3f2fd'
-      - pos: 50
-        color: '#4a9eff'
-      - pos: 100
-        color: '#1565c0'
+    max: 3200
   - entity: input_number.bar_card_test_temperature
     name: Temperature
     icon: mdi:thermometer
@@ -309,11 +302,11 @@ entities:
     max: 40
     gradient_stops:
       - pos: 0
-        color: '#fff9c4'
+        color: "#33ccff"
       - pos: 50
-        color: '#ff9800'
+        color: "#ff9933"
       - pos: 100
-        color: '#b71c1c'
+        color: "#ff0000"
   - entity: input_number.bar_card_test_humidity
     name: Humidity
     icon: mdi:water-percent
@@ -321,11 +314,11 @@ entities:
     max: 100
     gradient_stops:
       - pos: 0
-        color: '#e0f7fa'
+        color: "#e0f7fa"
       - pos: 50
-        color: '#26c6da'
+        color: "#26c6da"
       - pos: 100
-        color: '#006064'
+        color: "#006064"
   - entity: input_number.bar_card_test_battery
     name: Battery
     icon: mdi:battery
@@ -333,13 +326,13 @@ entities:
     max: 100
     gradient_stops:
       - pos: 0
-        color: '#F44336'
+        color: "#F44336"
       - pos: 30
-        color: '#FF9800'
+        color: "#FF9800"
       - pos: 60
-        color: '#4CAF50'
+        color: "#4CAF50"
       - pos: 100
-        color: '#4CAF50'
+        color: "#4CAF50"
 ```
 
 ---
@@ -358,13 +351,13 @@ label_position: left
 severity:
   - from: 0
     to: 33
-    color: '#4CAF50'
+    color: "#4CAF50"
   - from: 33
     to: 75
-    color: '#FF9800'
+    color: "#FF9800"
   - from: 75
     to: 100
-    color: '#F44336'
+    color: "#F44336"
 entities:
   - entity: input_number.bar_card_test_power
     name: Low Usage
@@ -398,19 +391,19 @@ entities:
     icon: mdi:sine-wave
     max: 3000
     color_mode: single
-    color: '#4a9eff'
+    color: "#4a9eff"
   - entity: input_number.bar_card_test_power
     name: Green
     icon: mdi:sine-wave
     max: 3000
     color_mode: single
-    color: '#4CAF50'
+    color: "#4CAF50"
   - entity: input_number.bar_card_test_power
     name: Purple
     icon: mdi:sine-wave
     max: 3000
     color_mode: single
-    color: '#9c27b0'
+    color: "#9c27b0"
 ```
 
 ---
@@ -424,7 +417,6 @@ Name fixed-width on the left, value on the right. All bars start at the same hor
 ```yaml
 type: custom:sensor-bar-card
 title: Label Position — Left
-color_mode: gradient
 label_position: left
 entities:
   - entity: input_number.bar_card_test_power
@@ -434,11 +426,11 @@ entities:
   - entity: input_number.bar_card_test_power
     name: Fridge
     icon: mdi:fridge
-    max: 200
+    max: 2000
   - entity: input_number.bar_card_test_power
     name: Lighting
     icon: mdi:lightbulb
-    max: 100
+    max: 1000
 ```
 
 ---
@@ -452,7 +444,6 @@ Name and value shown above the bar. Good when you want more vertical breathing r
 ```yaml
 type: custom:sensor-bar-card
 title: Label Position — Above
-color_mode: gradient
 label_position: above
 entities:
   - entity: input_number.bar_card_test_power
@@ -462,7 +453,7 @@ entities:
   - entity: input_number.bar_card_test_power
     name: Fridge
     icon: mdi:fridge
-    max: 200
+    max: 2000
 ```
 
 ---
@@ -476,7 +467,6 @@ Name and value rendered inside the bar itself. Works best with a taller bar heig
 ```yaml
 type: custom:sensor-bar-card
 title: Label Position — Inside
-color_mode: gradient
 label_position: inside
 height: 48
 entities:
@@ -487,7 +477,7 @@ entities:
   - entity: input_number.bar_card_test_power
     name: Fridge
     icon: mdi:fridge
-    max: 200
+    max: 1000
 ```
 
 ---
@@ -501,18 +491,43 @@ No name label at all — value still shows on the right. Useful for very compact
 ```yaml
 type: custom:sensor-bar-card
 title: Label Position — Off
-color_mode: gradient
-label_position: off
+label_position: "off"
 entities:
   - entity: input_number.bar_card_test_power
     icon: mdi:caravan
     max: 3000
   - entity: input_number.bar_card_test_power
     icon: mdi:fridge
-    max: 200
+    max: 2000
   - entity: input_number.bar_card_test_power
     icon: mdi:lightbulb
-    max: 100
+    max: 1000
+```
+
+---
+
+### Label Width
+
+Override the default label width.
+
+![Label position off](images/example-label-width.png)
+
+```yaml
+type: custom:sensor-bar-card
+title: Label Widths
+label_position: left
+color_mode: single
+color: "#4a9eff"
+max: 3000
+entities:
+  - entity: input_number.bar_card_test_power
+    name: Label
+    label_width: 35
+  - entity: input_number.bar_card_test_power
+    name: Label
+    label_width: 75
+  - entity: input_number.bar_card_test_power
+    name: Label
 ```
 
 ---
@@ -526,7 +541,6 @@ When `show_peak: true`, a subtle chevron (▼) and vertical line marks the highe
 ```yaml
 type: custom:sensor-bar-card
 title: Peak Marker
-color_mode: gradient
 label_position: left
 show_peak: true
 entities:
@@ -552,29 +566,28 @@ A fixed marker (▲) showing a goal or threshold. The target chevron points **up
 ```yaml
 type: custom:sensor-bar-card
 title: Target Marker
-color_mode: gradient
 label_position: left
 entities:
   - entity: input_number.bar_card_test_power
-    name: Under Target
+    name: Green Target
     icon: mdi:target
     min: 0
     max: 3000
     target: 2000
-    target_color: '#4CAF50'
+    target_color: "#4CAF50"
   - entity: input_number.bar_card_test_power
-    name: Over Target
+    name: Red Target
     icon: mdi:target
     min: 0
-    max: 1000
-    target: 500
-    target_color: '#F44336'
+    max: 3000
+    target: 2000
+    target_color: "#F44336"
   - entity: input_number.bar_card_test_power
     name: Default Color
     icon: mdi:target
     min: 0
     max: 3000
-    target: 1500
+    target: 2000
 ```
 
 ---
@@ -588,26 +601,25 @@ Peak (▼ top) and target (▲ bottom) on the same bar. Peak tracks the session 
 ```yaml
 type: custom:sensor-bar-card
 title: Peak & Target
-color_mode: gradient
 label_position: left
 show_peak: true
-peak_color: '#F44336'
+peak_color: "#F44336"
 entities:
   - entity: input_number.bar_card_test_power
     name: Caravan
     icon: mdi:caravan
     min: 0
-    max: 3000
+    max: 3200
     target: 2000
-    target_color: '#4a9eff'
+    target_color: "#4a9eff"
   - entity: input_number.bar_card_test_power
     name: Fridge
     icon: mdi:fridge
     min: 0
-    max: 500
-    target: 150
-    target_color: '#4CAF50'
-    peak_color: '#FF9800'
+    max: 3200
+    target: 500
+    target_color: "#4CAF50"
+    peak_color: "#FF9800"
 ```
 
 ---
@@ -621,26 +633,22 @@ Control how many decimal places are shown in the value. Useful for tidying up te
 ```yaml
 type: custom:sensor-bar-card
 title: Decimal Places
-color_mode: gradient
 label_position: left
 min: 0
 max: 40
+label_width: 140
 entities:
   - entity: input_number.bar_card_test_temperature
     name: No decimal (0)
-    icon: mdi:thermometer
     decimal: 0
   - entity: input_number.bar_card_test_temperature
     name: One decimal (1)
-    icon: mdi:thermometer
     decimal: 1
   - entity: input_number.bar_card_test_temperature
     name: Two decimals (2)
-    icon: mdi:thermometer
     decimal: 2
   - entity: input_number.bar_card_test_temperature
     name: Raw (no decimal set)
-    icon: mdi:thermometer
 ```
 
 ---
@@ -654,7 +662,6 @@ Use `icon: false` to remove the icon and its reserved space entirely. You can mi
 ```yaml
 type: custom:sensor-bar-card
 title: Icon Control
-color_mode: gradient
 label_position: left
 entities:
   - entity: input_number.bar_card_test_power
@@ -681,26 +688,24 @@ Adjust `height` to make bars taller or more compact. Can be set globally or per 
 ```yaml
 type: custom:sensor-bar-card
 title: Bar Heights
-color_mode: gradient
 label_position: left
 entities:
   - entity: input_number.bar_card_test_power
-    name: 24px — Compact
+    name: 24px Compact
     icon: mdi:minus
     max: 3000
     height: 24
   - entity: input_number.bar_card_test_power
-    name: 38px — Default
+    name: Default (38px)
     icon: mdi:minus
     max: 3000
-    height: 38
   - entity: input_number.bar_card_test_power
-    name: 52px — Tall
+    name: 52px Tall
     icon: mdi:minus
     max: 3000
     height: 52
   - entity: input_number.bar_card_test_power
-    name: 70px — Chunky
+    name: 70px Taller
     icon: mdi:minus
     max: 3000
     height: 70
@@ -731,7 +736,7 @@ entities:
     icon: mdi:fridge
     max: 3000
     color_mode: single
-    color: '#4a9eff'
+    color: "#4a9eff"
     show_peak: true
   - entity: input_number.bar_card_test_power
     name: Severity + label above
@@ -742,130 +747,28 @@ entities:
     severity:
       - from: 0
         to: 33
-        color: '#4CAF50'
+        color: "#4CAF50"
       - from: 33
         to: 75
-        color: '#FF9800'
+        color: "#FF9800"
       - from: 75
         to: 100
-        color: '#F44336'
+        color: "#F44336"
   - entity: input_number.bar_card_test_power
     name: Tall + inside label
     icon: mdi:television
     max: 3000
-    height: 52
+    height: 30
     label_position: inside
-```
-
----
-
-### Temperature Monitoring
-
-Colour bands tuned for comfortable room temperature ranges.
-
-![Temperature monitoring](images/example-temperature.png)
-
-```yaml
-type: custom:sensor-bar-card
-title: Temperatures
-color_mode: severity
-label_position: left
-min: 0
-max: 40
-severity:
-  - from: 0
-    to: 45
-    color: '#4a9eff'
-  - from: 45
-    to: 60
-    color: '#4CAF50'
-  - from: 60
-    to: 100
-    color: '#F44336'
-entities:
   - entity: input_number.bar_card_test_temperature
     name: Living Room
     icon: mdi:sofa
+    label_width: 80
   - entity: input_number.bar_card_test_temperature
-    name: Bedroom
-    icon: mdi:bed
-  - entity: input_number.bar_card_test_temperature
-    name: Outside
-    icon: mdi:weather-sunny
-```
-
----
-
-### Humidity Monitoring
-
-Colour bands showing dry, ideal, and humid ranges.
-
-![Humidity monitoring](images/example-humidity.png)
-
-```yaml
-type: custom:sensor-bar-card
-title: Humidity
-color_mode: severity
-label_position: left
-min: 0
-max: 100
-severity:
-  - from: 0
-    to: 30
-    color: '#FF9800'
-  - from: 30
-    to: 60
-    color: '#4CAF50'
-  - from: 60
-    to: 100
-    color: '#4a9eff'
-entities:
-  - entity: input_number.bar_card_test_humidity
     name: Living Room
-    icon: mdi:sofa
-  - entity: input_number.bar_card_test_humidity
-    name: Bedroom
-    icon: mdi:bed
-  - entity: input_number.bar_card_test_humidity
-    name: Bathroom
-    icon: mdi:shower
-```
-
----
-
-### Battery Levels
-
-Critical, low, and good colour bands for monitoring device batteries.
-
-![Battery levels](images/example-battery.png)
-
-```yaml
-type: custom:sensor-bar-card
-title: Battery Levels
-color_mode: severity
-label_position: left
-min: 0
-max: 100
-severity:
-  - from: 0
-    to: 20
-    color: '#F44336'
-  - from: 20
-    to: 50
-    color: '#FF9800'
-  - from: 50
-    to: 100
-    color: '#4CAF50'
-entities:
-  - entity: input_number.bar_card_test_battery
-    name: Phone
-    icon: mdi:cellphone
-  - entity: input_number.bar_card_test_battery
-    name: Tablet
-    icon: mdi:tablet
-  - entity: input_number.bar_card_test_battery
-    name: Remote
-    icon: mdi:remote
+    label_position: above
+    icon: false
+    label_width: 80
 ```
 
 ---
