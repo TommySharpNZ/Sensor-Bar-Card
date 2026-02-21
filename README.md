@@ -27,6 +27,8 @@ Clicking any bar opens the native Home Assistant entity dialog with full history
 - 🔧 **Per-entity overrides** — every option can be set as a global default and overridden per entity
 - 📐 **Configurable bar height** — set different heights per entity or globally
 - 🔢 **Decimal places** — control how many decimal places are shown in the value
+- 🔇 **Icon control** — use the entity's built-in HA icon, specify your own, or hide it entirely
+- 🏷️ **Unit override** — display any unit regardless of what the sensor reports
 - 🌡️ **Works with any sensor** — power, temperature, humidity, battery, CO₂, water flow, and more
 
 ---
@@ -90,7 +92,7 @@ All options can be set at the **card level as global defaults** and overridden i
 | `min` | number | `0` | Minimum value (shown as 0% bar width) |
 | `max` | number | `100` | Maximum value (shown as 100% bar width) |
 | `height` | number | `38` | Bar height in pixels |
-| `unit` | string | — | Override the unit of measurement |
+| `unit` | string | — | Override the unit of measurement displayed next to the value |
 
 ### Entity Options
 
@@ -99,8 +101,8 @@ Each item in `entities` accepts all card-level options above as overrides, plus:
 | Option | Type | Description |
 |---|---|---|
 | `entity` | string | **Required.** The Home Assistant entity ID |
-| `name` | string | Display name (defaults to the entity's friendly name) |
-| `icon` | string | Any MDI icon e.g. `mdi:thermometer` |
+| `name` | string | Display name — defaults to the entity's friendly name |
+| `icon` | string / `false` | MDI icon e.g. `mdi:thermometer`, or `false` to hide the icon entirely |
 
 ---
 
@@ -151,6 +153,31 @@ color: '#4a9eff'
 
 ---
 
+## Icons
+
+Each bar shows an icon to the left of the label. The card resolves which icon to show in this order:
+
+1. If `icon: false` — no icon is shown and no space is reserved
+2. If `icon: mdi:something` — that icon is used
+3. Otherwise — the entity's own HA icon is used automatically
+
+```yaml
+entities:
+  - entity: sensor.kettle_power
+    name: Kettle
+    # no icon set — uses the entity's HA icon automatically
+
+  - entity: sensor.fridge_power
+    name: Fridge
+    icon: mdi:fridge   # explicit override
+
+  - entity: sensor.solar_power
+    name: Solar
+    icon: false        # no icon, no gap
+```
+
+---
+
 ## Peak Marker
 
 When `show_peak: true` is set, the card tracks the highest value seen since the page was loaded and displays it as a subtle marker on the bar — a small downward chevron (▼) at the top with a vertical line through the bar. Use `peak_color` to change the marker colour.
@@ -168,6 +195,34 @@ When `target` is set to a value, a fixed marker is drawn on the bar at that posi
 The target chevron points **up** from the bottom of the bar while the peak chevron points **down** from the top, so the two markers are always easy to tell apart at a glance.
 
 The target value uses the same scale as `min` and `max` — so if `max: 3000` and you want a target at 2000W, set `target: 2000`.
+
+---
+
+## Unit Override
+
+By default the card displays whatever unit the sensor reports. Use `unit` to override this — useful for shortening long units, normalising mixed sensors, or simply displaying something cleaner.
+
+```yaml
+entities:
+  - entity: sensor.solar_power
+    name: Solar
+    unit: W       # override whatever HA reports
+  - entity: sensor.daily_energy
+    name: Today
+    unit: kWh
+```
+
+---
+
+## Clicking a Bar
+
+Clicking anywhere on a bar row fires the native Home Assistant `hass-more-info` event for that entity, opening the standard HA popup with full history, attributes, and graphs — exactly the same as tapping an entity in any other HA card.
+
+---
+
+## Error Handling
+
+If an entity ID is not found in Home Assistant (e.g. a typo or a device that's been removed), the card renders a small red error message in place of that bar rather than crashing the whole card. The other entities continue to display normally.
 
 ---
 
@@ -522,6 +577,33 @@ entities:
 
 ---
 
+### Hiding Icons
+
+Use `icon: false` to remove the icon and its reserved space entirely. You can mix and match — some rows with icons, some without.
+
+![Hiding icons](images/example-no-icon.png)
+
+```yaml
+type: custom:sensor-bar-card
+title: Icon Control
+color_mode: gradient
+label_position: left
+entities:
+  - entity: input_number.bar_card_test_power
+    name: Auto (entity icon)
+    max: 3000
+  - entity: input_number.bar_card_test_power
+    name: Explicit icon
+    icon: mdi:flash
+    max: 3000
+  - entity: input_number.bar_card_test_power
+    name: No icon
+    icon: false
+    max: 3000
+```
+
+---
+
 ### Bar Height Variations
 
 Adjust `height` to make bars taller or more compact. Can be set globally or per entity.
@@ -717,6 +799,18 @@ entities:
     name: Remote
     icon: mdi:remote
 ```
+
+---
+
+## Future Features
+
+A few ideas that have been discussed and are on the roadmap — no timeline, but watch this space:
+
+- **UI / Visual editor** — configure the card through the HA dashboard UI instead of YAML, with dropdowns, toggles, and an entity picker
+- **`tap_action` / `hold_action`** — configurable actions on click, matching the standard HA action model used by other cards
+- **`attribute` support** — display a specific entity attribute instead of the main state value
+- **Reverse / RTL bars** — fill from right to left for sensors where low values should appear full (e.g. remaining capacity)
+- **Min / max labels** — optional labels at each end of the bar track showing the configured min and max values
 
 ---
 

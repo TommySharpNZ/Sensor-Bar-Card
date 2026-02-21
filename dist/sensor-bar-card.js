@@ -17,6 +17,10 @@
  *   color: '#4a9eff'              # bar colour when color_mode is 'single'
  *   animated: true                # smooth bar fill transition on value change
  *   show_peak: true               # show peak marker (highest value seen this session)
+ *   peak_color: '#888'             # colour of the peak marker (default grey)
+ *   target: 2400                   # optional fixed target marker (absolute value, same scale as min/max)
+ *   target_color: '#4a9eff'        # colour of the target marker (default grey)
+ *   decimal: 1                     # decimal places for displayed value (null = use raw value)
  *   min: 0                        # minimum value
  *   max: 100                      # maximum value
  *   height: 38                    # bar height in px
@@ -104,12 +108,14 @@ class SensorBarCard extends HTMLElement {
     this._config = {};
     this._hass = null;
     this._peaks = {};
+    this._rendered = false;
   }
 
   setConfig(config) {
     if (!config.entities && !config.entity) {
       throw new Error('You must define entities or entity');
     }
+    this._rendered = false; // force full rebuild on config change
     this._config = {
       title: '',
       label_position: 'left',
@@ -117,6 +123,10 @@ class SensorBarCard extends HTMLElement {
       color: '#4a9eff',
       animated: true,
       show_peak: false,
+      peak_color: '#888',
+      target: null,
+      target_color: '#888',
+      decimal: null,
       min: 0,
       max: 100,
       height: 38,
@@ -157,8 +167,12 @@ class SensorBarCard extends HTMLElement {
       color:          entityCfg.color          ?? g.color,
       severity:       entityCfg.severity       ?? g.severity,
       show_peak:      entityCfg.show_peak      ?? g.show_peak,
+      peak_color:     entityCfg.peak_color     ?? g.peak_color,
+      target:         entityCfg.target         ?? g.target,
+      target_color:   entityCfg.target_color   ?? g.target_color,
+      decimal:        entityCfg.decimal        ?? g.decimal,
       unit:           entityCfg.unit           ?? g.unit ?? null,
-      icon:           entityCfg.icon           ?? null,
+      icon:           entityCfg.icon === false ? false : (entityCfg.icon ?? this._hass?.states[entityCfg.entity]?.attributes?.icon ?? null),
       name:           entityCfg.name           ?? null,
     };
   }
@@ -218,10 +232,9 @@ class SensorBarCard extends HTMLElement {
           cursor: pointer;
           border-radius: 8px;
           padding: 2px 4px;
-          transition: background 0.15s;
         }
         .row:last-child { margin-bottom: 0; }
-        .row:hover { background: var(--secondary-background-color, rgba(0,0,0,0.04)); }
+        .row:hover .bar-track { filter: brightness(0.95); transition: filter 0.15s; }
 
         .icon-wrap {
           display: flex;
@@ -279,18 +292,24 @@ class SensorBarCard extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 10px;
-          font-size: 12px;
-          font-weight: 600;
-          color: #fff;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-          white-space: nowrap;
+          padding: 0 6px;
           pointer-events: none;
           z-index: 2;
         }
+        .bar-inner-label span {
+          background: rgba(0,0,0,0.35);
+          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+          color: #fff;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          padding: 2px 8px;
+          border-radius: 20px;
+        }
 
-        /* Peak marker — subtle, sits over bar via shared parent */
-        .peak-marker {
+        /* ── Shared marker base ── */
+        .peak-marker, .target-marker {
           position: absolute;
           top: 0;
           bottom: 0;
@@ -299,18 +318,20 @@ class SensorBarCard extends HTMLElement {
           z-index: 4;
           pointer-events: none;
           transition: left 0.6s cubic-bezier(0.4,0,0.2,1);
+          --marker-color: #888;
         }
-        /* Vertical line — sharp, no rounded corners */
-        .peak-marker .peak-line {
+        /* Vertical lines */
+        .peak-marker .peak-line,
+        .target-marker .target-line {
           position: absolute;
           top: 0;
           bottom: 0;
           left: 0;
           width: 2px;
-          background: #888;
+          background: var(--marker-color);
           z-index: 1;
         }
-        /* Chevron at the top, on top of line */
+        /* Peak: chevron at TOP pointing down */
         .peak-marker .peak-chevron {
           position: absolute;
           top: 0;
@@ -320,7 +341,20 @@ class SensorBarCard extends HTMLElement {
           height: 0;
           border-left: 6px solid transparent;
           border-right: 6px solid transparent;
-          border-top: 8px solid #888;
+          border-top: 8px solid var(--marker-color);
+          z-index: 2;
+        }
+        /* Target: chevron at BOTTOM pointing up */
+        .target-marker .target-chevron {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 6px solid transparent;
+          border-right: 6px solid transparent;
+          border-bottom: 8px solid var(--marker-color);
           z-index: 2;
         }
 
@@ -352,7 +386,7 @@ class SensorBarCard extends HTMLElement {
     this._update();
   }
 
-  _buildRow(entityCfg, stateDisplay, unit, pct, color, peakPct, peakDisplay) {
+  _buildRow(entityCfg, stateDisplay, unit, pct, color, peakPct, peakDisplay, targetPct, peakColor, targetColor) {
     const ecfg = this._resolve(entityCfg);
     const lp   = ecfg.label_position;
     const h    = ecfg.height;
@@ -360,11 +394,18 @@ class SensorBarCard extends HTMLElement {
       || this._hass?.states[entityCfg.entity]?.attributes?.friendly_name
       || entityCfg.entity;
 
-    // Peak marker — subtle chevron at top with vertical line, no badge
+    // Peak marker — chevron top, line full height, configurable colour
     const peakMarker = ecfg.show_peak && peakPct !== null ? `
-      <div class="peak-marker" style="left:${peakPct}%;">
+      <div class="peak-marker" style="left:${peakPct}%;--marker-color:${peakColor || '#888'};">
         <div class="peak-chevron"></div>
         <div class="peak-line"></div>
+      </div>` : '';
+
+    // Target marker — same but chevron at bottom pointing up
+    const targetMarker = targetPct !== null ? `
+      <div class="target-marker" style="left:${targetPct}%;--marker-color:${targetColor || '#888'};">
+        <div class="target-line"></div>
+        <div class="target-chevron"></div>
       </div>` : '';
 
     const aboveLabel = lp === 'above' ? `
@@ -387,17 +428,22 @@ class SensorBarCard extends HTMLElement {
 
     return `
       <div class="row" data-entity="${entityCfg.entity}">
-        ${ecfg.icon ? `<div class="icon-wrap"><ha-icon icon="${ecfg.icon}"></ha-icon></div>` : ''}
+        ${ecfg.icon && ecfg.icon !== false ? `<div class="icon-wrap"><ha-icon icon="${ecfg.icon}"></ha-icon></div>` : ''}
         ${leftLabel}
         <div class="bar-wrap">
           ${aboveLabel}
           <div style="position:relative;height:${h}px;">
             <div class="bar-track" style="position:absolute;inset:0;height:${h}px;">
               <div class="bar-fill${ecfg.animated ? '' : ' no-anim'}"
-                style="width:${pct}%;background:${color};height:${h}px;${pct >= 97 ? 'border-radius:6px;' : ''}"></div>
+                style="width:${pct}%;height:${h}px;${pct >= 97 ? 'border-radius:6px;' : ''}${
+                  ecfg.color_mode === 'gradient'
+                    ? 'background:linear-gradient(to right,#4CAF50 0%,#FF9800 50%,#F44336 100%);background-size:' + ((100/pct)*100).toFixed(1) + '% 100%;background-repeat:no-repeat;'
+                    : 'background:' + color + ';'
+                }"></div>
               ${innerLabel}
             </div>
             ${peakMarker}
+            ${targetMarker}
           </div>
         </div>
         ${rightValue}
@@ -409,55 +455,108 @@ class SensorBarCard extends HTMLElement {
     const rowsEl = this.shadowRoot.querySelector('.rows');
     if (!rowsEl) return;
 
-    let html = '';
-    for (const entityCfg of this._config.entities) {
-      const stateObj = this._hass.states[entityCfg.entity];
-      if (!stateObj) {
-        html += `<div class="row"><span style="color:var(--error-color,red);font-size:12px;">
-          Entity not found: ${entityCfg.entity}</span></div>`;
-        continue;
+    const entities = this._config.entities;
+
+    // First render: build all rows from scratch
+    if (!this._rendered) {
+      let html = '';
+      for (const entityCfg of entities) {
+        const stateObj = this._hass.states[entityCfg.entity];
+        if (!stateObj) {
+          html += `<div class="row"><span style="color:var(--error-color,red);font-size:12px;">Entity not found: ${entityCfg.entity}</span></div>`;
+          continue;
+        }
+        const ecfg      = this._resolve(entityCfg);
+        const rawVal    = parseFloat(stateObj.state);
+        const unit      = ecfg.unit ?? stateObj.attributes?.unit_of_measurement ?? '';
+        const pct       = Math.min(100, Math.max(0, ((rawVal - ecfg.min) / (ecfg.max - ecfg.min)) * 100));
+        const color     = this._getColor(pct, ecfg);
+        const display   = isNaN(rawVal) ? stateObj.state : (ecfg.decimal !== null ? parseFloat(rawVal.toFixed(ecfg.decimal)).toLocaleString() : rawVal.toLocaleString());
+        let targetPct   = null;
+        if (ecfg.target !== null && ecfg.target !== undefined) {
+          targetPct = Math.min(100, Math.max(0, ((ecfg.target - ecfg.min) / (ecfg.max - ecfg.min)) * 100));
+        }
+        let peakPct = null, peakDisplay = null;
+        if (ecfg.show_peak && !isNaN(rawVal)) {
+          this._peaks[entityCfg.entity] = rawVal;
+          peakPct     = pct;
+          peakDisplay = display;
+        }
+        html += this._buildRow(entityCfg, display, unit, pct, color, peakPct, peakDisplay, targetPct, ecfg.peak_color, ecfg.target_color);
       }
+      rowsEl.innerHTML = html;
+      this._rendered = true;
+
+      // Attach click handlers
+      rowsEl.querySelectorAll('.row[data-entity]').forEach(row => {
+        row.addEventListener('click', () => {
+          const entityId = row.dataset.entity;
+          const event = new CustomEvent('hass-more-info', { composed: true, detail: { entityId } });
+          this.dispatchEvent(event);
+        });
+      });
+      return;
+    }
+
+    // Subsequent renders: patch only what changed, preserving DOM for smooth transitions
+    const rows = rowsEl.querySelectorAll('.row[data-entity]');
+    let rowIdx = 0;
+    for (const entityCfg of entities) {
+      const stateObj = this._hass.states[entityCfg.entity];
+      if (!stateObj) { rowIdx++; continue; }
 
       const ecfg    = this._resolve(entityCfg);
       const rawVal  = parseFloat(stateObj.state);
       const unit    = ecfg.unit ?? stateObj.attributes?.unit_of_measurement ?? '';
       const pct     = Math.min(100, Math.max(0, ((rawVal - ecfg.min) / (ecfg.max - ecfg.min)) * 100));
       const color   = this._getColor(pct, ecfg);
-      const display = isNaN(rawVal) ? stateObj.state : rawVal.toLocaleString();
+      const display = isNaN(rawVal) ? stateObj.state : (ecfg.decimal !== null ? parseFloat(rawVal.toFixed(ecfg.decimal)).toLocaleString() : rawVal.toLocaleString());
 
-      // Track session peak per entity
-      let peakPct = null, peakDisplay = null;
-      if (ecfg.show_peak) {
-        const key = entityCfg.entity;
-        if (!isNaN(rawVal)) {
-          if (this._peaks[key] === undefined || rawVal > this._peaks[key]) {
-            this._peaks[key] = rawVal;
-          }
+      const row = rows[rowIdx];
+      if (!row) { rowIdx++; continue; }
+
+      // Update bar fill width and colour in-place — this is what triggers the CSS transition
+      const fill = row.querySelector('.bar-fill');
+      if (fill) {
+        if (ecfg.color_mode === 'gradient') {
+          fill.style.width = `${pct}%`;
+          fill.style.backgroundSize = `${(100 / pct * 100).toFixed(1)}% 100%`;
+        } else {
+          fill.style.width = `${pct}%`;
+          fill.style.background = color;
         }
-        const peakVal = this._peaks[key];
-        if (peakVal !== undefined) {
-          peakPct     = Math.min(100, Math.max(0, ((peakVal - ecfg.min) / (ecfg.max - ecfg.min)) * 100));
-          peakDisplay = peakVal.toLocaleString();
+        if (pct >= 97) {
+          fill.style.borderRadius = '6px';
+        } else {
+          fill.style.borderRadius = '6px 0 0 6px';
         }
       }
 
-      html += this._buildRow(entityCfg, display, unit, pct, color, peakPct, peakDisplay);
+      // Update displayed value
+      const valueEl = row.querySelector('.value-right');
+      if (valueEl) {
+        valueEl.innerHTML = display + (unit ? `<span class="unit"> ${unit}</span>` : '');
+      }
+      const innerLabel = row.querySelector('.bar-inner-label');
+      if (innerLabel) {
+        const spans = innerLabel.querySelectorAll('span');
+        if (spans[1]) spans[1].textContent = display + (unit ? ' ' + unit : '');
+      }
+
+      // Update peak marker position
+      if (ecfg.show_peak && !isNaN(rawVal)) {
+        const key = entityCfg.entity;
+        if (this._peaks[key] === undefined || rawVal > this._peaks[key]) {
+          this._peaks[key] = rawVal;
+        }
+        const peakVal = this._peaks[key];
+        const peakPct = Math.min(100, Math.max(0, ((peakVal - ecfg.min) / (ecfg.max - ecfg.min)) * 100));
+        const peakEl  = row.querySelector('.peak-marker');
+        if (peakEl) peakEl.style.left = `${peakPct}%`;
+      }
+
+      rowIdx++;
     }
-    rowsEl.innerHTML = html;
-
-    // Click opens the native HA entity more-info dialog
-    rowsEl.querySelectorAll('.row[data-entity]').forEach(row => {
-      row.addEventListener('click', () => {
-        const entityId = row.getAttribute('data-entity');
-        const event = new Event('hass-more-info', { bubbles: true, composed: true });
-        event.detail = { entityId };
-        this.dispatchEvent(event);
-      });
-    });
-  }
-
-  getCardSize() {
-    return (this._config?.entities?.length || 1) + (this._config?.title ? 1 : 0);
   }
 }
 
@@ -467,5 +566,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'sensor-bar-card',
   name: 'Sensor Bar Card',
-  description: 'Configurable animated bar card for Home Assistant. Works with power, temperature, humidity, water flow, battery and more.',
+  description: 'Animated, colour-coded horizontal bar card for Home Assistant. Works with power, temperature, humidity, water flow, battery and more.',
 });
