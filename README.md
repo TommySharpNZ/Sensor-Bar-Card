@@ -10,7 +10,7 @@ Works great for power, temperature, humidity, battery, CO₂, water flow, and an
 
 Clicking any bar opens the native Home Assistant entity dialog with full history, attributes, and charts.
 
-![Preview](images/preview.png)
+![Preview](images/hero.png)
 
 > *My first ever Home Assistant card — please open an issue if you find bugs or have feature requests!*
 
