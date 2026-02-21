@@ -261,11 +261,11 @@ class SensorBarCard extends HTMLElement {
           width: 100%;
           border-radius: 6px;
           background: var(--secondary-background-color, #e8e8e8);
-          overflow: visible;
+          overflow: hidden;
         }
         .bar-fill {
           height: 100%;
-          border-radius: 6px;
+          border-radius: 6px 0 0 6px;
           transition: width 0.6s cubic-bezier(0.4,0,0.2,1), background-color 0.4s ease;
           min-width: 4px;
           position: relative;
@@ -289,40 +289,39 @@ class SensorBarCard extends HTMLElement {
           z-index: 2;
         }
 
-        /* Peak marker - a vertical line with a small label above */
+        /* Peak marker — subtle, sits over bar via shared parent */
         .peak-marker {
           position: absolute;
           top: 0;
           bottom: 0;
           width: 2px;
-          border-radius: 2px;
           transform: translateX(-50%);
-          z-index: 3;
+          z-index: 4;
           pointer-events: none;
           transition: left 0.6s cubic-bezier(0.4,0,0.2,1);
         }
-        .peak-marker::before {
-          content: attr(data-peak);
+        /* Vertical line — sharp, no rounded corners */
+        .peak-marker .peak-line {
           position: absolute;
-          top: -18px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 10px;
-          font-weight: 600;
-          white-space: nowrap;
-          padding: 1px 4px;
-          border-radius: 3px;
-          color: #fff;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 2px;
+          background: #888;
+          z-index: 1;
         }
-        /* Small triangle pointer below the label */
-        .peak-marker::after {
-          content: '';
+        /* Chevron at the top, on top of line */
+        .peak-marker .peak-chevron {
           position: absolute;
-          top: -6px;
+          top: 0;
           left: 50%;
           transform: translateX(-50%);
-          border-left: 4px solid transparent;
-          border-right: 4px solid transparent;
+          width: 0;
+          height: 0;
+          border-left: 6px solid transparent;
+          border-right: 6px solid transparent;
+          border-top: 8px solid #888;
+          z-index: 2;
         }
 
         .value-right {
@@ -361,12 +360,11 @@ class SensorBarCard extends HTMLElement {
       || this._hass?.states[entityCfg.entity]?.attributes?.friendly_name
       || entityCfg.entity;
 
-    // Peak marker — vertical line the full height of the bar, coloured to match,
-    // with a small value label floating above it
+    // Peak marker — subtle chevron at top with vertical line, no badge
     const peakMarker = ecfg.show_peak && peakPct !== null ? `
-      <div class="peak-marker"
-        data-peak="${peakDisplay}${unit ? ' ' + unit : ''}"
-        style="left:${peakPct}%;background:rgba(0,0,0,0.45);height:${h}px;">
+      <div class="peak-marker" style="left:${peakPct}%;">
+        <div class="peak-chevron"></div>
+        <div class="peak-line"></div>
       </div>` : '';
 
     const aboveLabel = lp === 'above' ? `
@@ -387,19 +385,18 @@ class SensorBarCard extends HTMLElement {
       ? `<div class="value-right">${stateDisplay}${unit ? `<span class="unit"> ${unit}</span>` : ''}</div>`
       : '';
 
-    // Extra top padding on bar-wrap when peak is enabled so the label has room
-    const wrapStyle = ecfg.show_peak ? 'margin-top:14px;' : '';
-
     return `
       <div class="row" data-entity="${entityCfg.entity}">
         ${ecfg.icon ? `<div class="icon-wrap"><ha-icon icon="${ecfg.icon}"></ha-icon></div>` : ''}
         ${leftLabel}
-        <div class="bar-wrap" style="${wrapStyle}">
+        <div class="bar-wrap">
           ${aboveLabel}
-          <div class="bar-track" style="height:${h}px;">
-            <div class="bar-fill${ecfg.animated ? '' : ' no-anim'}"
-              style="width:${pct}%;background:${color};height:${h}px;"></div>
-            ${innerLabel}
+          <div style="position:relative;height:${h}px;">
+            <div class="bar-track" style="position:absolute;inset:0;height:${h}px;">
+              <div class="bar-fill${ecfg.animated ? '' : ' no-anim'}"
+                style="width:${pct}%;background:${color};height:${h}px;${pct >= 97 ? 'border-radius:6px;' : ''}"></div>
+              ${innerLabel}
+            </div>
             ${peakMarker}
           </div>
         </div>
