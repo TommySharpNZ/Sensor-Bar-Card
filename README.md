@@ -169,7 +169,7 @@ The simplest possible config. One entity, default severity colour mode, label on
 type: custom:sensor-bar-card
 title: Caravan Power
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Caravan
     icon: mdi:caravan
     max: 3000
@@ -189,15 +189,15 @@ title: Gradient Colour Mode
 color_mode: gradient
 label_position: left
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Low Usage
     icon: mdi:sine-wave
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Medium Usage
     icon: mdi:sine-wave
     max: 500
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: High Usage
     icon: mdi:sine-wave
     max: 150
@@ -227,15 +227,15 @@ severity:
     to: 100
     color: '#F44336'
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Low Usage
     icon: mdi:sine-wave
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Medium Usage
     icon: mdi:sine-wave
     max: 500
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: High Usage
     icon: mdi:sine-wave
     max: 150
@@ -254,19 +254,19 @@ type: custom:sensor-bar-card
 title: Single Colour Mode
 label_position: left
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Blue
     icon: mdi:sine-wave
     max: 3000
     color_mode: single
     color: '#4a9eff'
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Green
     icon: mdi:sine-wave
     max: 3000
     color_mode: single
     color: '#4CAF50'
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Purple
     icon: mdi:sine-wave
     max: 3000
@@ -288,15 +288,15 @@ title: Label Position — Left
 color_mode: gradient
 label_position: left
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Caravan
     icon: mdi:caravan
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Fridge
     icon: mdi:fridge
     max: 200
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Lighting
     icon: mdi:lightbulb
     max: 100
@@ -316,11 +316,11 @@ title: Label Position — Above
 color_mode: gradient
 label_position: above
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Caravan
     icon: mdi:caravan
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Fridge
     icon: mdi:fridge
     max: 200
@@ -341,11 +341,11 @@ color_mode: gradient
 label_position: inside
 height: 48
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Caravan
     icon: mdi:caravan
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Fridge
     icon: mdi:fridge
     max: 200
@@ -365,13 +365,13 @@ title: Label Position — Off
 color_mode: gradient
 label_position: off
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     icon: mdi:caravan
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     icon: mdi:fridge
     max: 200
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     icon: mdi:lightbulb
     max: 100
 ```
@@ -391,11 +391,11 @@ color_mode: gradient
 label_position: left
 show_peak: true
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: With Peak
     icon: mdi:caravan
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Without Peak
     icon: mdi:caravan
     max: 3000
@@ -416,22 +416,22 @@ title: Bar Heights
 color_mode: gradient
 label_position: left
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: 24px — Compact
     icon: mdi:minus
     max: 3000
     height: 24
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: 38px — Default
     icon: mdi:minus
     max: 3000
     height: 38
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: 52px — Tall
     icon: mdi:minus
     max: 3000
     height: 52
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: 70px — Chunky
     icon: mdi:minus
     max: 3000
@@ -454,18 +454,18 @@ label_position: left
 animated: true
 show_peak: false
 entities:
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Default (inherits all globals)
     icon: mdi:caravan
     max: 3000
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Single blue + peak on
     icon: mdi:fridge
     max: 3000
     color_mode: single
     color: '#4a9eff'
     show_peak: true
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Severity + label above
     icon: mdi:lightbulb
     max: 3000
@@ -481,7 +481,7 @@ entities:
       - from: 75
         to: 100
         color: '#F44336'
-  - entity: sensor.sonoffpowr320d01_energy_power
+  - entity: input_number.bar_card_test
     name: Tall + inside label
     icon: mdi:television
     max: 3000
